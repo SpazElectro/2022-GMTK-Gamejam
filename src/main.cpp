@@ -1,6 +1,14 @@
 #include "global.h"
+#include "Timer/Timer.h"
 #include <math.h>
 #include <vector>
+#include <thread>
+#include <chrono>
+
+float dicePositionY = 0;
+Timer* mainDiceTimer;
+
+float diceTimer = 0.0f;
 
 std::string formatPrice(long input)
 {
@@ -77,6 +85,9 @@ typedef struct
 long rollDice(Dice_t *dice, long gain, long prestigeMult)
 {
     int rolled = GetRandomValue(dice->luck, dice->max);
+
+    mainDiceTimer = new Timer();
+	dicePositionY=53;
 
     diceNumber = (dice->isGolden ? 6 : rolled);
 
@@ -206,7 +217,6 @@ int main() {
     bool musicPaused = false;
     bool inMenu = true;
 
-
     while(!WindowShouldClose()) {
         UpdateMusicStream(music);
 
@@ -241,6 +251,7 @@ int main() {
             DrawText("Dice Clicker", WINDOW_WIDTH / 2 - MeasureText("Dice Clicker", 30) / 2, 20, 30, WHITE);
             DrawText("Press Space to start", WINDOW_WIDTH / 2 - MeasureText("Press Space to start", 20) / 2, WINDOW_HEIGHT - 40, 20, WHITE);
         EndDrawing();
+		
     }
 
     if(inMenu) {
@@ -266,6 +277,17 @@ int main() {
     }
 
     while(!WindowShouldClose()) {
+        if(mainDiceTimer) {
+            if(mainDiceTimer->ElapsedMillisecs() > 100 and mainDiceTimer->ElapsedMillisecs() < 200) {
+                dicePositionY = -53;
+            }
+
+            if(mainDiceTimer->ElapsedMillisecs() > 200) {
+                dicePositionY = 0;
+                mainDiceTimer = nullptr;
+            }
+        }
+
         dice.luck = diceLuck;
         
         UpdateMusicStream(music);
@@ -306,7 +328,7 @@ int main() {
                         quickVec(650, 340), quickVec(100, 50)
                     )
                 )) {
-                    if(cash >= 10000) {
+                    if(cash >= prestigePrice) {
                         cash = 0;
                         diceConstantNumber = 0;
                         diceLuck = 0;
@@ -361,6 +383,10 @@ int main() {
             SeekMusicStream(music, 0);
         }
         
+        if(dicePositionY > 0) {
+            dicePositionY -= GetFrameTime()/10.0f;
+        }
+		
         BeginDrawing();
             ClearBackground(GRAY);
 
@@ -379,11 +405,11 @@ int main() {
             DrawFPS(WINDOW_WIDTH - 100, WINDOW_HEIGHT - 20);
 
             if(dice.isGolden == false) {
-                DrawTexture(getDiceTexture(diceNumber), WINDOW_WIDTH / 2 - DICE_SIZE + 32, WINDOW_HEIGHT / 2 - DICE_SIZE + 50, WHITE);
+                DrawTexture(getDiceTexture(diceNumber), WINDOW_WIDTH / 2 - DICE_SIZE + 32, WINDOW_HEIGHT / 2 - DICE_SIZE + 50 - dicePositionY, WHITE);
             } else {
                 diceNumber = 6;
 
-                DrawTexture(goldenDice, WINDOW_WIDTH / 2 - DICE_SIZE + 32, WINDOW_HEIGHT / 2 - DICE_SIZE + 50, WHITE);
+                DrawTexture(goldenDice, WINDOW_WIDTH / 2 - DICE_SIZE + 32, WINDOW_HEIGHT / 2 - DICE_SIZE + 50 - dicePositionY, WHITE);
             }
 
             DrawTextEx(fonts[0], formatPrice(cash).c_str(), quickVec(160, 325), 34, 1, BLACK);

@@ -12,6 +12,8 @@ add_executable(
     ${APP_SOURCE_DIR}/pch.h
     ${APP_SOURCE_DIR}/main.cpp
     ${APP_SOURCE_DIR}/global.h
+    ${APP_SOURCE_DIR}/Timer/Timer.h
+    ${APP_SOURCE_DIR}/Timer/Timer.cpp
 )
 
 target_include_directories(
