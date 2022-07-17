@@ -67,16 +67,20 @@ static void AudioProcessEffectDelay(void *buffer, unsigned int frames)
     }
 }
 
-void rollDice() {
-    diceNumber = GetRandomValue(1 + diceLuck, 6);
+typedef struct
+{
+  int luck;
+  int max;
+  bool isGolden;
+} Dice_t;
 
-    if(diceConstantNumber != 0) {
-        diceNumber = diceConstantNumber + diceNumber;
+long rollDice(Dice_t *dice, long gain, long prestigeMult)
+{
+    int rolled = GetRandomValue(dice->luck, dice->max);
 
-        if(diceNumber > 6) diceNumber = 6;
-    }
+    diceNumber = (dice->isGolden ? 6 : rolled);
 
-    cash += diceNumber * diceGain * prestigeMultiplier * (diceConstantNumber + 1);
+    return (dice->isGolden ? 6 : rolled) * gain * prestigeMult;
 }
 
 Color getUpgradeColor(Upgrade* upgrade) {
@@ -116,7 +120,7 @@ void drawUpgrades() {
 
         DrawTextEx(
             fonts[0],
-            ("$" + std::to_string(upgrades[i].price)).c_str(),
+            ("$" + formatPrice(upgrades[i].price)).c_str(),
             quickVec(posX + 10, posY + 75), 20, 1, WHITE
         );
 
@@ -155,6 +159,10 @@ int main() {
     InitAudioDevice();
     
     // essentials
+
+    Dice_t dice = {0, 6, false};
+    
+    // music code is NOT mine
     Music music = LoadMusicStream("resources/music.mp3");
     music.looping = true;
 
@@ -170,6 +178,8 @@ int main() {
     Texture2D background = LoadTexture("resources/cyberpunk_street_background.png");
     Texture2D midground = LoadTexture("resources/cyberpunk_street_midground.png");
     Texture2D foreground = LoadTexture("resources/cyberpunk_street_foreground.png");
+    Texture2D goldenDice = getResizedTextureFromPath("resources/dice/golden.png", DICE_SIZE, DICE_SIZE);
+    SetTextureFilter(goldenDice, TEXTURE_FILTER_POINT);
 
     float scrollingBack = 0;
     float scrollingMid = 0;
@@ -193,6 +203,7 @@ int main() {
 
     bool musicPaused = false;
     bool inMenu = true;
+
 
     while(!WindowShouldClose()) {
         UpdateMusicStream(music);
@@ -253,6 +264,8 @@ int main() {
     }
 
     while(!WindowShouldClose()) {
+        dice.luck = diceLuck;
+        
         UpdateMusicStream(music);
 
         if(IsKeyPressed(KEY_M)) {
@@ -335,16 +348,16 @@ int main() {
                         printf("upgrade found %s\n", item->name);
                         buyUpgrade(item);
                     } else {
-                        rollDice();
+                        cash += rollDice(&(dice), diceGain, prestigeMultiplier);
+                        dice.isGolden = GetRandomValue(0, 1);
                     }
                 }
             }
         }
         
-        // std::string _cashText = std::to_string(cash);
-        // _cashText.resize(_cashText.size() - 7);
-
-        // const char* cashText = _cashText.c_str();
+        if(GetMusicTimePlayed(music) >= GetMusicTimeLength(music)) {
+            SeekMusicStream(music, 0);
+        }
         
         BeginDrawing();
             ClearBackground(GRAY);
@@ -363,13 +376,15 @@ int main() {
             DrawTexture(backgroundImage, 0, 0, WHITE);
             DrawFPS(WINDOW_WIDTH - 100, WINDOW_HEIGHT - 20);
 
-            if(diceConstantNumber < 6) {
-                DrawTexture(getDiceTexture(diceNumber), WINDOW_WIDTH / 2 - 64, WINDOW_HEIGHT / 2 - 64, WHITE);
+            if(dice.isGolden == false) {
+                DrawTexture(getDiceTexture(diceNumber), WINDOW_WIDTH / 2 - DICE_SIZE + 32, WINDOW_HEIGHT / 2 - DICE_SIZE + 50, WHITE);
             } else {
-                DrawTexture(getDiceTexture(diceNumber), WINDOW_WIDTH / 2 - 64, WINDOW_HEIGHT / 2 - 64, ORANGE);
+                diceNumber = 6;
+
+                DrawTexture(goldenDice, WINDOW_WIDTH / 2 - DICE_SIZE + 32, WINDOW_HEIGHT / 2 - DICE_SIZE + 50, WHITE);
             }
 
-            DrawTextEx(fonts[0], formatPrice(cash).c_str(), quickVec(160, 320), 34, 1, BLACK);
+            DrawTextEx(fonts[0], formatPrice(cash).c_str(), quickVec(160, 325), 34, 1, BLACK);
 
             DrawRectangle(600, 320, 200, 50, WHITE);
             DrawRectangleLines(600, 320, 200, 50, BLACK);

@@ -7,6 +7,8 @@ const int WINDOW_WIDTH = 800;
 const int WINDOW_HEIGHT = 430;
 const char* WINDOW_TITLE = "Dice Clicker";
 
+const int DICE_SIZE = 96;
+
 Font fonts[20] = { 0 };
 
 Texture2D backgroundImage;

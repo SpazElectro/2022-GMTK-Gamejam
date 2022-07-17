@@ -10,6 +10,9 @@ extern "C"
 #ifndef PCH_H
 #define PCH_H
 
+// im so sorry for 2 variables with the same name forgive me
+const int DICE_SIZE_PCH = 96;
+
 double cash = 0;
 double diceNumber = 1;
 double diceGain = 1;
@@ -55,7 +58,12 @@ Texture2D getResizedTextureFromPath(const char* path, int newWidth, int newHeigh
 
 void prepareDiceTextures() {
     for(int i = 0; i < 6; i++) {
-        diceTextures[i] = getResizedTextureFromPath(("resources/dice/" + std::to_string(i + 1) + ".png").c_str(), 64, 64);
+        diceTextures[i] = getResizedTextureFromPath(
+            ("resources/dice/" + std::to_string(i + 1) + ".png").c_str(),
+            DICE_SIZE_PCH, DICE_SIZE_PCH
+        );
+
+        SetTextureFilter(diceTextures[i], TEXTURE_FILTER_POINT);
     }
 }
 
