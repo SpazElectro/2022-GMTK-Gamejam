@@ -157,6 +157,8 @@ void buyUpgrade(Upgrade* item) {
 int main() {
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE);
     InitAudioDevice();
+
+    SetConfigFlags(FLAG_MSAA_4X_HINT);
     
     // essentials
 
