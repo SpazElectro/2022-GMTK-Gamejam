@@ -13,7 +13,8 @@ extern "C"
 // im so sorry for 2 variables with the same name forgive me
 const int DICE_SIZE_PCH = 96;
 
-double cash = 0;
+long long cash = 0;
+
 double diceNumber = 1;
 double diceGain = 1;
 double diceLuck = 1;
@@ -108,13 +109,13 @@ class Upgrade {
 public:
     const char* name;
     
-    int price;
+    long long price;
     int level;
     int levels;
 
     Upgrade() {}
 
-    Upgrade(const char* name, int price, int levels) {
+    Upgrade(const char* name, long long price, int levels) {
         this->name = name;
         this->price = price;
         this->levels = levels;
