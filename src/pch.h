@@ -91,6 +91,7 @@ public:
     }
 
     void Stop() {
+        // this doesnt work btw its dumb af
         StopSound(this->sounds[GetRandomValue(0, this->randomRange)]);
     }
 

@@ -34,13 +34,13 @@ std::string formatPrice(long input)
 
     for (i = 0; i < suffixes.size(); i++)
     {
-            wholePart = num / 1000;
-            fracPart = (num / 100) % 10;
+        wholePart = num / 1000;
+        fracPart = (num / 100) % 10;
 
-            if (wholePart < 1000)
+        if (wholePart < 1000)
             break;
 
-            num = wholePart;
+        num = wholePart;
     }
 
     return std::to_string(wholePart) + "." + std::to_string(fracPart) + " " + suffixes[i];

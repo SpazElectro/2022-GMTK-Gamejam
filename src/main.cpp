@@ -212,10 +212,14 @@ int main() {
     while(!WindowShouldClose()) {
         if(mainDiceTimer) {
             if(mainDiceTimer->ElapsedMillisecs() > 100 and mainDiceTimer->ElapsedMillisecs() < 200) {
-                dicePositionY = -53;
+                dicePositionY = 0;
             }
 
             if(mainDiceTimer->ElapsedMillisecs() > 200) {
+                dicePositionY = -53;
+            }
+
+            if(mainDiceTimer->ElapsedMillisecs() > 300) {
                 dicePositionY = 0;
                 mainDiceTimer = nullptr;
             }
@@ -316,7 +320,7 @@ int main() {
         }
         
         if(dicePositionY > 0) {
-            dicePositionY -= GetFrameTime()/10.0f;
+            dicePositionY -= GetFrameTime() / 10.0f;
         }
 		
         BeginDrawing();
