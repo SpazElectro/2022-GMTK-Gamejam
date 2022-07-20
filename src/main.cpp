@@ -5,7 +5,11 @@
 #include <thread>
 #include <chrono>
 
+float diceSize = 1;
 float dicePositionY = 0;
+
+bool soundsEnabled = true;
+
 Timer* mainDiceTimer;
 
 typedef struct
@@ -20,7 +24,7 @@ long rollDice(Dice_t *dice, long gain, long prestigeMult)
     int rolled = GetRandomValue(dice->luck, dice->max);
 
     mainDiceTimer = new Timer();
-	dicePositionY=53;
+	dicePositionY = 50;
 
     diceNumber = (dice->isGolden ? 6 : rolled);
 
@@ -50,6 +54,7 @@ void drawUpgrades() {
         DrawRectangleLines(posX, posY, 50, 50, BLACK);
         DrawText("Upgrade", posX + 6.25, posY + 12.5, 10, BLACK);
 
+        // TODO: make this not hardcoded please
         if(upgrades[i].name == "Multiplier") {
             namePosX -= 20;
         } else if(upgrades[i].name == "Constant Dice Multiplier") {
@@ -124,7 +129,7 @@ int main() {
     Texture2D background = LoadTexture("resources/cyberpunk_street_background.png");
     Texture2D midground = LoadTexture("resources/cyberpunk_street_midground.png");
     Texture2D foreground = LoadTexture("resources/cyberpunk_street_foreground.png");
-    Texture2D goldenDice = getResizedTextureFromPath("resources/dice/golden.png", DICE_SIZE, DICE_SIZE);
+    Texture2D goldenDice = getResizedTextureFromPath("resources/dice/golden.png", DICE_SIZE + diceSize, DICE_SIZE + diceSize);
     SetTextureFilter(goldenDice, TEXTURE_FILTER_POINT);
 
     float scrollingBack = 0;
@@ -184,7 +189,6 @@ int main() {
             DrawText("Dice Clicker", WINDOW_WIDTH / 2 - MeasureText("Dice Clicker", 30) / 2, 20, 30, WHITE);
             DrawText("Press Space to start", WINDOW_WIDTH / 2 - MeasureText("Press Space to start", 20) / 2, WINDOW_HEIGHT - 40, 20, WHITE);
         EndDrawing();
-		
     }
 
     if(inMenu) {
@@ -192,6 +196,12 @@ int main() {
         UnloadTexture(background);
         UnloadTexture(midground);
         UnloadTexture(foreground);
+        UnloadTexture(diceTextures[0]);
+        UnloadTexture(diceTextures[1]);
+        UnloadTexture(diceTextures[2]);
+        UnloadTexture(diceTextures[3]);
+        UnloadTexture(diceTextures[4]);
+        UnloadTexture(diceTextures[5]);
         UnloadFont(fonts[0]);
         UnloadFont(fonts[1]);
         UnloadFont(fonts[2]);
@@ -212,11 +222,11 @@ int main() {
     while(!WindowShouldClose()) {
         if(mainDiceTimer) {
             if(mainDiceTimer->ElapsedMillisecs() > 100 and mainDiceTimer->ElapsedMillisecs() < 200) {
-                dicePositionY = 0;
+                dicePositionY = 1;
             }
 
             if(mainDiceTimer->ElapsedMillisecs() > 200) {
-                dicePositionY = -53;
+                dicePositionY = -50;
             }
 
             if(mainDiceTimer->ElapsedMillisecs() > 300) {
@@ -237,6 +247,10 @@ int main() {
             }
 
             musicPaused = !musicPaused;
+        }
+
+        if(IsKeyPressed(KEY_N)) {
+            soundsEnabled = !soundsEnabled;
         }
 
         scrollingBack -= 0.1f * GetFrameTime() * 1000;
@@ -302,14 +316,18 @@ int main() {
                             break;
                         }
                     }
-                    
-                    selectSound->PlayMulti();
 
                     if(foundUpgrade) {
+                        if(soundsEnabled) selectSound->PlayMulti();
+
                         buyUpgrade(item);
                     } else {
-                        cash += rollDice(&(dice), diceGain, prestigeMultiplier);
-                        dice.isGolden = GetRandomValue(0, 1);
+                        if(dicePositionY == 0) {
+                            if(soundsEnabled) selectSound->PlayMulti();
+
+                            cash += rollDice(&(dice), diceGain, prestigeMultiplier);
+                            dice.isGolden = GetRandomValue(0, 1);
+                        }
                     }
                 }
             }
@@ -341,11 +359,11 @@ int main() {
             DrawFPS(WINDOW_WIDTH - 100, WINDOW_HEIGHT - 20);
 
             if(dice.isGolden == false) {
-                DrawTexture(getDiceTexture(diceNumber), WINDOW_WIDTH / 2 - DICE_SIZE + 32, WINDOW_HEIGHT / 2 - DICE_SIZE + 50 - dicePositionY, WHITE);
+                DrawTexture(getDiceTexture(diceNumber), WINDOW_WIDTH / 2 - DICE_SIZE + 32 + diceSize, WINDOW_HEIGHT / 2 - DICE_SIZE + 50 - dicePositionY + diceSize, WHITE);
             } else {
                 diceNumber = 6;
 
-                DrawTexture(goldenDice, WINDOW_WIDTH / 2 - DICE_SIZE + 32, WINDOW_HEIGHT / 2 - DICE_SIZE + 50 - dicePositionY, WHITE);
+                DrawTexture(goldenDice, WINDOW_WIDTH / 2 - DICE_SIZE + 32 + diceSize, WINDOW_HEIGHT / 2 - DICE_SIZE + 50 - dicePositionY + diceSize, WHITE);
             }
 
             DrawTextEx(fonts[0], formatPrice(cash).c_str(), quickVec(160, 325), 34, 1, BLACK);
@@ -373,6 +391,12 @@ int main() {
     UnloadTexture(background);
     UnloadTexture(midground);
     UnloadTexture(foreground);
+    UnloadTexture(diceTextures[0]);
+    UnloadTexture(diceTextures[1]);
+    UnloadTexture(diceTextures[2]);
+    UnloadTexture(diceTextures[3]);
+    UnloadTexture(diceTextures[4]);
+    UnloadTexture(diceTextures[5]);
     UnloadFont(fonts[0]);
     UnloadFont(fonts[1]);
     UnloadFont(fonts[2]);
