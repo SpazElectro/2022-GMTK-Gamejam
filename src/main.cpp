@@ -5,7 +5,7 @@
 #include <thread>
 #include <chrono>
 
-float diceSize = 1;
+long long diceSize = 0;
 float dicePositionY = 0;
 
 bool soundsEnabled = true;
@@ -223,14 +223,17 @@ int main() {
         if(mainDiceTimer) {
             if(mainDiceTimer->ElapsedMillisecs() > 100 and mainDiceTimer->ElapsedMillisecs() < 200) {
                 dicePositionY = 1;
+                diceSize = 15;
             }
 
             if(mainDiceTimer->ElapsedMillisecs() > 200) {
                 dicePositionY = -50;
+                diceSize = 5;
             }
 
             if(mainDiceTimer->ElapsedMillisecs() > 300) {
                 dicePositionY = 0;
+                diceSize = 0;
                 mainDiceTimer = nullptr;
             }
         }
@@ -359,11 +362,14 @@ int main() {
             DrawFPS(WINDOW_WIDTH - 100, WINDOW_HEIGHT - 20);
 
             if(dice.isGolden == false) {
-                DrawTexture(getDiceTexture(diceNumber), WINDOW_WIDTH / 2 - DICE_SIZE + 32 + diceSize, WINDOW_HEIGHT / 2 - DICE_SIZE + 50 - dicePositionY + diceSize, WHITE);
+                DrawTexture(getDiceTexture(diceNumber, diceSize), WINDOW_WIDTH / 2 - DICE_SIZE + 32 - diceSize, WINDOW_HEIGHT / 2 - DICE_SIZE + 50 - dicePositionY - diceSize, WHITE);
             } else {
+                goldenDice.width = DICE_SIZE + diceSize;
+                goldenDice.height = DICE_SIZE + diceSize;
+
                 diceNumber = 6;
 
-                DrawTexture(goldenDice, WINDOW_WIDTH / 2 - DICE_SIZE + 32 + diceSize, WINDOW_HEIGHT / 2 - DICE_SIZE + 50 - dicePositionY + diceSize, WHITE);
+                DrawTexture(goldenDice, WINDOW_WIDTH / 2 - DICE_SIZE + 32 - diceSize, WINDOW_HEIGHT / 2 - DICE_SIZE + 50 - dicePositionY - diceSize, WHITE);
             }
 
             DrawTextEx(fonts[0], formatPrice(cash).c_str(), quickVec(160, 325), 34, 1, BLACK);

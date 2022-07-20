@@ -68,7 +68,10 @@ void prepareDiceTextures() {
     }
 }
 
-Texture2D getDiceTexture(int num) {
+Texture2D getDiceTexture(int num, long long ds) {
+    diceTextures[num - 1].width = DICE_SIZE_PCH + ds;
+    diceTextures[num - 1].height = DICE_SIZE_PCH + ds;
+
     return diceTextures[num - 1];
 }
 
